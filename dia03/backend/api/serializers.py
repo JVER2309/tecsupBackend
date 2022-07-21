@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username','email','password']
+        fields = ['username','first_name','last_name','email','password']
         # Argumentos extra para nuestro modelo -> ocultamos el password
         extra_kwargs = {'password':{'write_only':True}}
 
@@ -15,6 +15,8 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User(
             email = validated_data['email'],
+            first_name = validated_data['first_name'],
+            last_name = validated_data['last_name'],
             username = validated_data['username']
         )
         # Encriptar el password
