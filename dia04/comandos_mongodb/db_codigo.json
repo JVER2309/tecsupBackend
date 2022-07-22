@@ -1,0 +1,34 @@
+[
+    {
+        "id":1,
+        "nombre":"juver manrique",
+        "email":"jretuertop@uni.pe",
+        "celular":"972368039",
+        "github":"https://github.com/JVER2309/"
+    }
+]
+
+[
+    {
+        "id":1,
+        "nombre":"python"
+    }
+]
+
+[
+    {
+        "fecha":"2022-07-21",
+        "alumno":{
+            "id":1,
+            "nombre":"juver manrique"
+        },
+        "nivel":"basico",
+        "modulo":"backend",
+        "cursos":[
+            "id":1,
+            "nombre":"python",
+            "nota":10
+        ]
+        
+    }
+]
