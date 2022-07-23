@@ -24,7 +24,9 @@ class App extends Component{
     this.cambioFecha = this.cambioFecha.bind(this);
     this.cambioRating = this.cambioRating.bind(this);
     this.cambioCategoria = this.cambioCategoria.bind(this);
-    this.guardar = this.guardar.bind(this)
+    this.guardar = this.guardar.bind(this);
+    this.editar = this.editar.bind(this);
+    this.eliminar = this.eliminar.bind(this);
   }
 
   cambioNombre(e){
@@ -63,6 +65,34 @@ class App extends Component{
     })
   }
 
+  editar(cod,index){
+    axios.get('http://localhost:8000/serie/' +cod+ '/')
+    .then(res=>{
+      this.setState({
+        pos:index,
+        titulo:'Editar',
+        id:res.data.id,
+        nombre:res.data.nombre,
+        fecha:res.data.fecha_registro,
+        rating:res.data.rating,
+        categoria:res.data.categoria
+      })
+    })
+  }
+
+  eliminar(cod){
+    let rpta = window.confirm("Estas seguro de eliminar el registro");
+    if(rpta){
+      axios.delete('http://localhost:8000/serie/' +cod+ '/')
+      .then(res=>{
+        var temp =this.state.series.filter((serie) => serie.id !== cod);
+        this.setState({
+          series: temp
+        })
+      })
+    }
+  }
+
   guardar(e){
     e.preventDefault();
     const datos = {
@@ -72,21 +102,45 @@ class App extends Component{
       categoria:this.state.categoria
     }
 
-    axios.post('http://localhost:8000/serie/',datos)
-    .the(res=>{
-      this.state.series.push(res.data);
-      var temp = this.state.series;
-      this.setState({
-        id:0,
-        nombre:'',
-        fecha:'',
-        rating:'',
-        categoria:'',
-        series:temp
-      });
-    }).catch((error)=>{
-      console.log(error.toString());
-    })
+    let cod = this.state.id;
+
+    if(cod>0){
+      axios.put('http://localhost:8000/serie/' +cod+ '/',datos)
+      .then(res=>{
+        let indx = this.state.pos
+        this.state.series[indx] = res.data;
+        var temp =this.state.series;
+        this.setState({
+          pos:null,
+          titulo:'Nuevo',
+          id:0,
+          nombre:'',
+          fecha:'',
+          rating:0,
+          categoria:'',
+          series:temp
+        })
+      }).catch((error)=>{
+        console.log(error.toString());
+      })
+
+    }else{
+      axios.post('http://localhost:8000/serie/',datos)
+      .the(res=>{
+        this.state.series.push(res.data);
+        var temp = this.state.series;
+        this.setState({
+          id:0,
+          nombre:'',
+          fecha:'',
+          rating:'',
+          categoria:'',
+          series:temp
+        });
+      }).catch((error)=>{
+        console.log(error.toString());
+      })
+    }
   }
 
   render(){
@@ -114,15 +168,19 @@ class App extends Component{
                     <td>{serie.fecha_registro}</td>
                     <td>{serie.rating}</td>
                     <td>{serie.categoria}</td>
-                    <td></td>
+                    <td>
+                      <Button variant="success" onClick={()=>this.editar(serie.id,index)}>Editar</Button>
+                      <Button variant="danger" onClick={()=>this.eliminar(serie.id)}>Eliminar</Button>
+                    </td>
                   </tr>
                 )
               })}
             </tbody>
           </Table>
           <br/>
-          <h1>Nueva Serie</h1>
+          <h1>{this.state.titulo}</h1>
           <Form onSubmit={this.guardar}>
+            <Form.Control type="hidden" value={this.state.id}/>
             <Form.Group className='nb-3'>
               <Form.Label>Nombre:</Form.Label>
               <Form.Control type="text" value={this.state.nombre} onChange={this.cambioNombre}/>
